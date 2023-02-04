@@ -64,8 +64,8 @@ abs_dirname() {
   cwd="$(pwd)"
 
   while [ -n "$path" ]; do
-    cd "${path%/*}"
-    local name="${path##*/}"
+    cd "${path%[/\\]*}"
+    local name="${path##*[/\\]}"
     path="$(resolve_link "$name" || true)"
   done
 
