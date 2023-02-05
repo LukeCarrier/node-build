@@ -195,7 +195,9 @@ platform() {
 
   os="$(uname -s | tr '[:upper:]' '[:lower:]')"
 
-  if type -p lsb_release >/dev/null; then
+  if is_win; then
+    os=windows
+  elif type -p lsb_release >/dev/null; then
     case "$(lsb_release -sir)" in
       *Ubuntu*    ) distro=ubuntu ;;
       *Debian*    ) distro=debian ;;
