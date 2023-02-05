@@ -88,7 +88,11 @@ colorize() {
 }
 
 os_information() {
-  if type -p lsb_release >/dev/null; then
+  if [[ "$(uname)" == MSYS_NT* ]]; then
+    ver="$(cmd <<<"exit")"
+    [[ "$ver" =~ [0-9\\.]+ ]]
+    echo "Windows $BASH_REMATCH"
+  elif type -p lsb_release >/dev/null; then
     lsb_release -sir | xargs echo
   elif type -p sw_vers >/dev/null; then
     echo "OS X $(sw_vers -productVersion)"
