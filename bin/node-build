@@ -88,7 +88,7 @@ colorize() {
 }
 
 os_information() {
-  if [[ "$(uname)" == MSYS_NT* ]]; then
+  if is_win; then
     ver="$(cmd <<<"exit")"
     [[ "$ver" =~ [0-9\\.]+ ]]
     echo "Windows $BASH_REMATCH"
@@ -109,6 +109,14 @@ os_information() {
 is_mac() {
   [ "$(uname -s)" = "Darwin" ] || return 1
   [ $# -eq 0 ] || test "$(osx_version)" "$@"
+}
+
+is_win() {
+  [[ "$(uname)" == MSYS_NT* ]]
+}
+
+win_path_to_msys() {
+  [[ "$1" =~ ([A-Z]):(.*) ]] && echo "/${BASH_REMATCH[1],,}${BASH_REMATCH[2]//\\/\/}"
 }
 
 #  9.1  -> 901
@@ -861,6 +869,16 @@ unset KEEP_BUILD_PATH
 unset HAS_PATCH
 unset IPV4
 unset IPV6
+
+# WINDIR will be a Windows-style path (C:\Windows), but PATH will use MSYS style
+# ones where the first path segment is the drive letter (/c/Windows). We expect
+# Unix tools on PATH, so move system32 to the end of PATH.
+if is_win; then
+  system32_msys="$(win_path_to_msys "$WINDIR")/system32"
+  if [[ $PATH =~ (.*)([:^]$system32_msys[:$])(.*) ]]; then
+    export PATH="${BASH_REMATCH[1]}${BASH_REMATCH[3]}"
+  fi
+fi
 
 NODE_BUILD_INSTALL_PREFIX="$(abs_dirname "$0")/.."
 
